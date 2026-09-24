@@ -301,6 +301,9 @@ function renderList() {
   for (const p of visible) {
     const cat = CATEGORIES[p.category] || CATEGORIES.other;
     const st = STATUSES[p.status] || STATUSES.idea;
+    // Defense-in-depth: clamp при рендере, даже если данные попали
+    // в память не через loadProjects() (напр. будущая синхронизация вкладок)
+    const prog = Math.min(100, Math.max(0, Number(p.progress) || 0));
 
     const card = document.createElement("article");
     card.className = "card";
@@ -317,8 +320,8 @@ function renderList() {
         <span class="badge ${st.cls}">${escapeHtml(st.label)}</span>
       </div>
       <div class="progress-row">
-        <div class="progress-track"><div class="progress-fill" style="width:${Number(p.progress) || 0}%"></div></div>
-        <span class="progress-value">${Number(p.progress) || 0}%</span>
+        <div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div>
+        <span class="progress-value">${prog}%</span>
       </div>
       <div class="card-actions">
         <button type="button" class="btn btn-ghost btn-sm" data-action="edit">✏️ Изменить</button>
