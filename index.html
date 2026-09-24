@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2e5d3b">
+  <title>Проекты</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
+  <link rel="stylesheet" href="styles.css?v=2">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-top">
+      <h1 class="app-title">🗂️ Проекты</h1>
+      <button type="button" class="btn btn-primary" id="btn-new" aria-label="Создать новый проект">
+        <span class="btn-icon">＋</span><span class="btn-label">Новый</span>
+      </button>
+    </div>
+    <div class="stats-bar" id="stats-bar" aria-live="polite">
+      <span class="stat"><b id="stat-total">0</b> всего</span>
+      <span class="stat stat-dot">•</span>
+      <span class="stat"><b id="stat-active">0</b> в работе</span>
+      <span class="stat stat-dot">•</span>
+      <span class="stat"><b id="stat-done">0</b> завершено</span>
+    </div>
+    <div class="search-row">
+      <div class="search-wrap" role="search">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="search" id="search-input" placeholder="Поиск по названию и описанию…"
+               autocomplete="off" enterkeyhint="search">
+        <button type="button" class="search-clear" id="search-clear" aria-label="Очистить поиск" hidden>✕</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="project-list" id="project-list" aria-label="Список проектов"></section>
+
+    <section class="empty-state" id="empty-state" hidden>
+      <div class="empty-art" aria-hidden="true">
+        <div class="empty-box">📦</div>
+        <div class="empty-question">❓</div>
+      </div>
+      <h2 id="empty-title">Ничего не найдено</h2>
+      <p id="empty-text">Попробуйте изменить запрос или создайте новый проект.</p>
+      <button type="button" class="btn btn-primary" id="btn-empty-new">＋ Новый проект</button>
+    </section>
+  </main>
+
+  <dialog class="modal" id="project-modal">
+    <form method="dialog" class="modal-card" id="project-form" novalidate>
+      <h2 class="modal-title" id="modal-title">Новый проект</h2>
+
+      <label class="field">
+        <span class="field-label">Название <b class="req">*</b></span>
+        <input type="text" id="f-name" maxlength="60" placeholder="Например: Северный Ветер" required>
+        <span class="field-error" id="err-name" aria-live="polite"></span>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Описание</span>
+        <textarea id="f-desc" rows="3" maxlength="300" placeholder="Пара слов о том, что это за проект…"></textarea>
+      </label>
+
+      <div class="field-pair">
+        <label class="field">
+          <span class="field-label">Категория</span>
+          <select id="f-category">
+            <option value="tech">🛠️ Техника и гаджеты</option>
+            <option value="garden">🌿 Дача и сад</option>
+            <option value="art">🎨 Творчество</option>
+            <option value="science">🔬 Исследования</option>
+            <option value="home">🏠 Быт и уют</option>
+            <option value="other">✨ Другое</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field-label">Статус</span>
+          <select id="f-status">
+            <option value="idea">💡 Идея</option>
+            <option value="active" selected>🚧 В работе</option>
+            <option value="done">✅ Завершён</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Прогресс: <output id="f-progress-out" for="f-progress">50%</output></span>
+        <input type="range" id="f-progress" min="0" max="100" step="5" value="50">
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="btn-cancel" value="cancel">Отмена</button>
+        <button type="submit" class="btn btn-primary" id="btn-save">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <footer class="app-footer">
+    <button type="button" class="btn btn-ghost btn-sm" id="btn-reset">↺ Сбросить демо-данные</button>
+  </footer>
+
+  <script src="app.js?v=2"></script>
+</body>
+</html>
