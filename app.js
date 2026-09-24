@@ -250,18 +250,20 @@ function escapeHtml(s) {
     .replaceAll("'", "&#39;");
 }
 
-/** Выделение совпадения поиска: подсветка подстроки в безопасном HTML. */
+/** Экранирование символов для вставки в RegExp. */
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Выделение ВСЕХ совпадений поиска: подсветка в безопасном HTML.
+    И текст, и запрос экранируются как HTML до сопоставления,
+    спецсимволы запроса — как regex, поэтому инъекция невозможна. */
 function highlight(text, q) {
   const safe = escapeHtml(text);
   if (!q) return safe;
   const safeQ = escapeHtml(q);
-  const idx = safe.toLowerCase().indexOf(safeQ.toLowerCase());
-  if (idx === -1) return safe;
-  return (
-    safe.slice(0, idx) +
-    "<mark>" + safe.slice(idx, idx + safeQ.length) + "</mark>" +
-    safe.slice(idx + safeQ.length)
-  );
+  const re = new RegExp(escapeRegex(safeQ), "gi");
+  return safe.replace(re, "<mark>$&</mark>");
 }
 
 let toastTimer = null;
@@ -441,8 +443,8 @@ els.form.addEventListener("submit", (e) => {
 
   const data = {
     name,
-    desc: els.fDesc.value.trim(),
-    category: els.fCategory.value,
+    desc: els.fDesc.value.trim().slice(0, 300),  // дублируем maxlength формы:
+    category: els.fCategory.value,               // атрибут обходится программно
     status: els.fStatus.value,
     progress: Number(els.fProgress.value) || 0,
   };
