@@ -345,7 +345,10 @@ function render() {
 
 /* ---------- Модальное окно ---------- */
 
+let lastFocused = null;   // элемент, открывший модалку — фокус вернём ему
+
 function openModal(id) {
+  lastFocused = document.activeElement;
   editingId = id ?? null;
   const p = id ? projects.find(x => x.id === id) : null;
 
@@ -365,6 +368,11 @@ function openModal(id) {
 
 function closeModal() {
   els.modal.close();
+  // WCAG 2.4.3: фокус возвращается на элемент, открывший модалку
+  if (lastFocused && document.contains(lastFocused)) {
+    lastFocused.focus();
+    lastFocused = null;
+  }
 }
 
 function removeProject(id) {
