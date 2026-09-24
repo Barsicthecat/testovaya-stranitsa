@@ -307,11 +307,12 @@ function renderList() {
 
     const card = document.createElement("article");
     card.className = "card";
+    card.setAttribute("aria-labelledby", `title-${p.id}`);
     card.innerHTML = `
       <div class="card-top">
         <span class="card-emoji" aria-hidden="true">${cat.emoji}</span>
         <div class="card-main">
-          <h3 class="card-title">${highlight(p.name, query.trim())}</h3>
+          <h3 class="card-title" id="title-${p.id}">${highlight(p.name, query.trim())}</h3>
           ${p.desc ? `<p class="card-desc">${highlight(p.desc, query.trim())}</p>` : ""}
         </div>
       </div>
@@ -320,12 +321,12 @@ function renderList() {
         <span class="badge ${st.cls}">${escapeHtml(st.label)}</span>
       </div>
       <div class="progress-row">
-        <div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div>
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${prog}" aria-label="Прогресс: ${prog}%"><div class="progress-fill" style="width:${prog}%"></div></div>
         <span class="progress-value">${prog}%</span>
       </div>
       <div class="card-actions">
-        <button type="button" class="btn btn-ghost btn-sm" data-action="edit">✏️ Изменить</button>
-        <button type="button" class="btn btn-danger btn-sm" data-action="delete">🗑 Удалить</button>
+        <button type="button" class="btn btn-ghost btn-sm" data-action="edit" aria-label="Изменить проект «${escapeHtml(p.name)}»">✏️ Изменить</button>
+        <button type="button" class="btn btn-danger btn-sm" data-action="delete" aria-label="Удалить проект «${escapeHtml(p.name)}»">🗑 Удалить</button>
       </div>
     `;
 
@@ -361,6 +362,7 @@ function openModal(id) {
   els.fProgressOut.textContent = els.fProgress.value + "%";
   els.errName.textContent = "";
   els.fName.classList.remove("invalid");
+  els.fName.removeAttribute("aria-invalid");
 
   els.modal.showModal();
   els.fName.focus();
@@ -410,12 +412,14 @@ els.form.addEventListener("submit", (e) => {
   if (!name) {
     els.errName.textContent = "Введите название проекта";
     els.fName.classList.add("invalid");
+    els.fName.setAttribute("aria-invalid", "true");
     els.fName.focus();
     return;
   }
   if (projects.some(p => p.name.toLowerCase() === name.toLowerCase() && p.id !== editingId)) {
     els.errName.textContent = "Проект с таким названием уже есть";
     els.fName.classList.add("invalid");
+    els.fName.setAttribute("aria-invalid", "true");
     els.fName.focus();
     return;
   }
@@ -449,6 +453,7 @@ els.form.addEventListener("submit", (e) => {
 els.fName.addEventListener("input", () => {
   if (els.fName.classList.contains("invalid")) {
     els.fName.classList.remove("invalid");
+    els.fName.removeAttribute("aria-invalid");
     els.errName.textContent = "";
   }
 });

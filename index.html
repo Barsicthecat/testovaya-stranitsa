@@ -27,6 +27,7 @@
       <div class="search-wrap" role="search">
         <span class="search-icon" aria-hidden="true">🔍</span>
         <input type="search" id="search-input" placeholder="Поиск по названию и описанию…"
+               aria-label="Поиск по названию и описанию"
                autocomplete="off" enterkeyhint="search">
         <button type="button" class="search-clear" id="search-clear" aria-label="Очистить поиск" hidden>✕</button>
       </div>
@@ -53,7 +54,8 @@
 
       <label class="field">
         <span class="field-label">Название <b class="req">*</b></span>
-        <input type="text" id="f-name" maxlength="60" placeholder="Например: Северный Ветер" required>
+        <input type="text" id="f-name" maxlength="60" placeholder="Например: Северный Ветер"
+               aria-describedby="err-name" required>
         <span class="field-error" id="err-name" aria-live="polite"></span>
       </label>
 
@@ -85,7 +87,7 @@
       </div>
 
       <label class="field">
-        <span class="field-label">Прогресс: <output id="f-progress-out" for="f-progress">50%</output></span>
+        <span class="field-label">Прогресс: <output id="f-progress-out" for="f-progress" aria-live="polite">50%</output></span>
         <input type="range" id="f-progress" min="0" max="100" step="5" value="50">
       </label>
 
@@ -102,6 +104,6 @@
     <button type="button" class="btn btn-ghost btn-sm" id="btn-reset">↺ Сбросить демо-данные</button>
   </footer>
 
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
