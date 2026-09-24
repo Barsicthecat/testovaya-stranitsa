@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#2e5d3b">
   <title>Проекты</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
   <header class="app-header">
@@ -26,8 +26,11 @@
         <span class="search-icon" aria-hidden="true">🔍</span>
         <input type="search" id="search-input" placeholder="Поиск по названию и описанию…"
                aria-label="Поиск по названию и описанию"
-               autocomplete="off" enterkeyhint="search">
+               autocomplete="off" enterkeyhint="search"
+               role="combobox" aria-expanded="false" aria-controls="search-suggest"
+               aria-haspopup="listbox" aria-autocomplete="list">
         <button type="button" class="search-clear" id="search-clear" aria-label="Очистить поиск" hidden>✕</button>
+        <ul class="search-suggest" id="search-suggest" role="listbox" aria-label="Подсказки поиска" hidden></ul>
       </div>
     </div>
   </header>
@@ -102,6 +105,6 @@
     <button type="button" class="btn btn-ghost btn-sm" id="btn-reset">↺ Сбросить демо-данные</button>
   </footer>
 
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

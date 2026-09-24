@@ -219,6 +219,8 @@ const els = {
   emptyText: $("#empty-text"),
   search: $("#search-input"),
   searchClear: $("#search-clear"),
+  searchWrap: $(".search-wrap"),
+  suggest: $("#search-suggest"),
   btnNew: $("#btn-new"),
   btnEmptyNew: $("#btn-empty-new"),
   btnReset: $("#btn-reset"),
@@ -491,14 +493,132 @@ els.search.addEventListener("input", () => {
   query = els.search.value;
   els.searchClear.hidden = !query;
   renderList();
+  renderSuggest();
 });
 
 els.searchClear.addEventListener("click", () => {
   els.search.value = "";
   query = "";
   els.searchClear.hidden = true;
+  hideSuggest();
   renderList();
   els.search.focus();
+});
+
+/* ---------- Подсказки поиска (autocomplete) ---------- */
+
+let suggestIndex = -1;   // активная подсказка (-1 = нет)
+
+function suggestMatches(q) {
+  const ql = q.trim().toLowerCase();
+  if (!ql) return [];
+  return projects
+    .filter(p => p.name.toLowerCase().includes(ql) || (p.desc || "").toLowerCase().includes(ql))
+    .slice(0, 5);
+}
+
+function renderSuggest() {
+  const q = els.search.value.trim();
+  const matches = suggestMatches(els.search.value);
+  suggestIndex = -1;
+
+  if (!q || matches.length === 0) {
+    hideSuggest();
+    return;
+  }
+
+  els.suggest.innerHTML = "";
+  const frag = document.createDocumentFragment();
+
+  matches.forEach((p) => {
+    const cat = CATEGORIES[p.category] || CATEGORIES.other;
+    const ql = q.toLowerCase();
+    const inName = p.name.toLowerCase().includes(ql);
+    const inDesc = (p.desc || "").toLowerCase().includes(ql);
+
+    const li = document.createElement("li");
+    li.className = "suggest-item";
+    li.setAttribute("role", "option");
+    li.id = "suggest-opt-" + p.id;
+    li.innerHTML = `
+      <span class="suggest-emoji" aria-hidden="true">${cat.emoji}</span>
+      <span class="suggest-main">
+        <span class="suggest-name">${highlight(p.name, q)}</span>
+        <span class="suggest-where">${inName ? "совпадение в названии" : ""}${inName && inDesc ? " и описании" : (!inName && inDesc ? "совпадение в описании" : "")}</span>
+      </span>
+    `;
+    li.addEventListener("pointerdown", (e) => {
+      // pointerdown, а не click: срабатывает ДО blur поля
+      e.preventDefault();
+      applySuggest(p.name);
+    });
+    frag.appendChild(li);
+  });
+
+  els.suggest.appendChild(frag);
+  els.suggest.hidden = false;
+  els.search.setAttribute("aria-expanded", "true");
+}
+
+function hideSuggest() {
+  els.suggest.hidden = true;
+  els.suggest.innerHTML = "";
+  suggestIndex = -1;
+  els.search.setAttribute("aria-expanded", "false");
+  els.search.removeAttribute("aria-activedescendant");
+}
+
+function applySuggest(name) {
+  els.search.value = name;
+  query = name;
+  els.searchClear.hidden = false;
+  hideSuggest();
+  renderList();
+  // карточка выбранного проекта — в поле зрения
+  const card = els.list.querySelector(`.card[aria-labelledby="title-${projects.find(p => p.name === name)?.id}"]`);
+  if (card) card.scrollIntoView({ block: "center", behavior: "smooth" });
+}
+
+function moveSuggest(delta) {
+  const items = [...els.suggest.querySelectorAll(".suggest-item")];
+  if (items.length === 0) return;
+  suggestIndex = (suggestIndex + delta + items.length) % items.length;
+  items.forEach((li, i) => li.classList.toggle("active", i === suggestIndex));
+  const active = items[suggestIndex];
+  els.search.setAttribute("aria-activedescendant", active.id);
+  active.scrollIntoView({ block: "nearest" });
+}
+
+els.search.addEventListener("keydown", (e) => {
+  if (els.suggest.hidden) return;
+  if (e.key === "ArrowDown") { e.preventDefault(); moveSuggest(1); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); moveSuggest(-1); }
+  else if (e.key === "Enter") {
+    const items = [...els.suggest.querySelectorAll(".suggest-item")];
+    if (suggestIndex >= 0 && items[suggestIndex]) {
+      e.preventDefault();
+      applySuggest(items[suggestIndex].querySelector(".suggest-name").textContent);
+    } else {
+      hideSuggest();               // Enter без выбора — просто закрыть
+    }
+  } else if (e.key === "Escape") {
+    hideSuggest();                 // Esc закрывает подсказки, не трогая список
+    e.stopPropagation();           // не всплывает дальше (модалка закрыта)
+  }
+});
+
+// закрытие по тапу/клику вне подсказок
+document.addEventListener("pointerdown", (e) => {
+  if (!els.suggest.hidden && !els.searchWrap.contains(e.target)) {
+    hideSuggest();
+  }
+});
+
+// потеря фокуса полем (клик по подсказке перехвачен pointerdown'ом выше)
+els.search.addEventListener("blur", () => {
+  setTimeout(() => {
+    if (!els.suggest.contains(document.activeElement)) hideSuggest();
+  }, 120);
 });
 
 /* ---------- Сброс демо-данных ---------- */

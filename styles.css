@@ -198,6 +198,73 @@ body {
   justify-content: center;
 }
 
+/* ---------- Подсказки поиска (autocomplete) ---------- */
+
+.search-wrap { position: relative; }
+
+.search-suggest {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .22);
+  z-index: 30;                 /* над карточками (sticky-хедер = 20) */
+  max-height: min(52vh, 320px);
+  overflow-y: auto;
+}
+
+.search-suggest[hidden] { display: none; }
+
+.suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;            /* тач-цель */
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.suggest-item:hover,
+.suggest-item.active {
+  background: var(--green-soft);
+}
+
+.suggest-emoji { font-size: 1.2rem; flex-shrink: 0; }
+
+.suggest-main { flex: 1 1 auto; min-width: 0; }
+
+.suggest-name {
+  font-size: .95rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.suggest-name mark {
+  background: color-mix(in srgb, var(--amber) 45%, transparent);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+.suggest-where {
+  font-size: .75rem;
+  color: var(--ink-soft);
+  margin-top: 1px;
+}
+
+.suggest-empty {
+  padding: 10px 12px;
+  font-size: .85rem;
+  color: var(--ink-soft);
+}
+
 /* ---------- Контент ---------- */
 
 .content {
