@@ -6,17 +6,15 @@
   <meta name="theme-color" content="#2e5d3b">
   <title>Проекты</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>" />
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
   <header class="app-header">
     <div class="header-top">
       <h1 class="app-title">🗂️ Проекты</h1>
-      <button type="button" class="btn btn-primary" id="btn-new" aria-label="Создать новый проект">
-        <span class="btn-icon">＋</span><span class="btn-label">Новый</span>
-      </button>
+      <button type="button" class="btn btn-primary" id="btn-new" aria-label="Создать новый проект">＋ Новый</button>
     </div>
-    <div class="stats-bar" id="stats-bar" aria-live="polite">
+    <div class="stats-bar" aria-live="polite">
       <span class="stat"><b id="stat-total">0</b> всего</span>
       <span class="stat stat-dot">•</span>
       <span class="stat"><b id="stat-active">0</b> в работе</span>
@@ -92,8 +90,8 @@
       </label>
 
       <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" id="btn-cancel" value="cancel">Отмена</button>
-        <button type="submit" class="btn btn-primary" id="btn-save">Сохранить</button>
+        <button type="button" class="btn btn-ghost" id="btn-cancel">Отмена</button>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
       </div>
     </form>
   </dialog>
@@ -104,6 +102,6 @@
     <button type="button" class="btn btn-ghost btn-sm" id="btn-reset">↺ Сбросить демо-данные</button>
   </footer>
 
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>

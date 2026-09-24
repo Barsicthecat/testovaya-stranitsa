@@ -413,7 +413,8 @@ els.btnEmptyNew.addEventListener("click", () => openModal(null));
 els.btnCancel.addEventListener("click", closeModal);
 
 els.modal.addEventListener("cancel", (e) => {
-  // закрытие по Esc приостанавливает анимации — просто закрываем
+  // Esc на открытом <dialog> генерирует cancel; preventDefault обязателен,
+  // иначе браузер закрыл бы диалог БЕЗ нашего возврата фокуса в closeModal
   e.preventDefault();
   closeModal();
 });
@@ -511,6 +512,11 @@ els.btnReset.addEventListener("click", () => {
     projects = prev;               // запись не удалась — старые данные сохранены
     return;
   }
+  // Сброс возвращает исходный список — активный поиск сбрасываем тоже,
+  // иначе статистика «10» против одной видимой карточки путает
+  els.search.value = "";
+  query = "";
+  els.searchClear.hidden = true;
   render();
   showToast("Демо-данные восстановлены");
 });
