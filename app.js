@@ -189,7 +189,17 @@ function loadProjects() {
 }
 
 function saveProjects() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+  // Возвращает true при успехе. При ошибке записи (напр. QuotaExceededError)
+  // показывает тост и возвращает false — вызывающий код решает, что делать
+  // (создание/редактирование не «проглатываются» молча, данные не теряются
+  // тихо: пользователь видит, что сохранение не удалось).
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+    return true;
+  } catch {
+    showToast("Не удалось сохранить: хранилище недоступно/переполнено");
+    return false;
+  }
 }
 
 /* ---------- Состояние ---------- */
@@ -382,8 +392,13 @@ function removeProject(id) {
   if (!p) return;
   const ok = window.confirm(`Удалить проект «${p.name}»? Действие необратимо.`);
   if (!ok) return;
-  projects = projects.filter(x => x.id !== id);
-  saveProjects();
+  const next = projects.filter(x => x.id !== id);
+  const prev = projects;
+  projects = next;                 // сначала пробуем записать новое состояние
+  if (!saveProjects()) {
+    projects = prev;               // запись не удалась — откат, карточка жива
+    return;
+  }
   render();
   showToast(`Проект «${p.name}» удалён`);
 }
@@ -434,18 +449,27 @@ els.form.addEventListener("submit", (e) => {
 
   if (editingId) {
     const idx = projects.findIndex(p => p.id === editingId);
-    if (idx !== -1) projects[idx] = { ...projects[idx], ...data };
+    if (idx === -1) { closeModal(); return; }
+    const prev = projects;
+    const updated = [...projects];
+    updated[idx] = { ...updated[idx], ...data };
+    projects = updated;
+    if (!saveProjects()) {
+      projects = prev;             // запись не удалась — откат, модалка открыта
+      return;                      // (ввод сохранён, пользователь может повторить)
+    }
     showToast(`Проект «${name}» обновлён`);
   } else {
-    projects.unshift({
-      id: uid(),
-      createdAt: new Date().toISOString().slice(0, 10),
-      ...data,
-    });
+    const updated = [{ id: uid(), createdAt: new Date().toISOString().slice(0, 10), ...data }, ...projects];
+    const prev = projects;
+    projects = updated;
+    if (!saveProjects()) {
+      projects = prev;
+      return;
+    }
     showToast(`Проект «${name}» создан`);
   }
 
-  saveProjects();
   closeModal();
   render();
 });
@@ -479,8 +503,12 @@ els.searchClear.addEventListener("click", () => {
 els.btnReset.addEventListener("click", () => {
   const ok = window.confirm("Вернуть исходные 10 демо-проектов? Текущие изменения будут потеряны.");
   if (!ok) return;
+  const prev = projects;
   projects = seedProjects();
-  saveProjects();
+  if (!saveProjects()) {
+    projects = prev;               // запись не удалась — старые данные сохранены
+    return;
+  }
   render();
   showToast("Демо-данные восстановлены");
 });
