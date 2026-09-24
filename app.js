@@ -146,13 +146,43 @@ function seedProjects() {
 
 /* ---------- Хранилище ---------- */
 
+/**
+ * Нормализация одного проекта из localStorage.
+ * Возвращает null для элементов-мусора (не объектов), для остальных —
+ * объект с гарантированно корректными типами и диапазонами:
+ *  - name: строка (обрезается до 60 симв. — как maxlength формы)
+ *  - desc: строка или "" (до 300 симв.)
+ *  - category/status: только известные ключи, иначе дефолт
+ *  - progress: число, зажатое в 0–100
+ * Защищает от повреждённого/подменённого localStorage (краш рендера).
+ */
+function sanitizeProject(p) {
+  if (p === null || typeof p !== "object" || Array.isArray(p)) return null;
+  const name = typeof p.name === "string" ? p.name.trim().slice(0, 60) : "";
+  if (!name) return null; // без валидного названия проект бесполезен — отбрасываем
+  return {
+    id: (typeof p.id === "string" && p.id) ? p.id : uid(),
+    name,
+    desc: typeof p.desc === "string" ? p.desc.trim().slice(0, 300) : "",
+    category: CATEGORIES[p.category] ? p.category : "other",
+    status: STATUSES[p.status] ? p.status : "idea",
+    progress: Math.min(100, Math.max(0, Number(p.progress) || 0)),
+    ...(typeof p.createdAt === "string" && p.createdAt ? { createdAt: p.createdAt } : {}),
+  };
+}
+
 function loadProjects() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return seedProjects();
     const data = JSON.parse(raw);
     if (!Array.isArray(data)) return seedProjects();
-    return data;
+    const clean = data.map(sanitizeProject).filter(Boolean);
+    // Если после чистки ничего не осталось И исходник был непустым мусором —
+    // показываем пустой список только если это был честный [].
+    // Мусорные данные заменяем демо-проектами.
+    if (clean.length === 0 && data.length > 0) return seedProjects();
+    return clean;
   } catch {
     return seedProjects();
   }
